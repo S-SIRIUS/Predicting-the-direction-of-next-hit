@@ -1,1 +1,1 @@
-# Predicting-the-next-hit
+# Predicting-the-direction-of-next-hit
