@@ -23,163 +23,162 @@ Kmeans 알고리즘은 “군집 중심점이라는 특정한 임의의 지점�
 ### 1) 데이터 프레임화
 데이터 분석을 위해 텍스트 파일들을 데이터 프레임 형태로 변환하는 과정을 설명합니다. 먼저, 파일들의 경로를 지정하고, 모든 파일명을 all_files에 저장하여 경로를 포함시킵니다. 이 파일들은 read_table을 사용해 읽히고, 문자열 형태로 변환된 후 review_text 리스트에 저장됩니다. 파일명은 처리하여 filename_list에 저장되며, 이는 파일명을 기준으로 정렬하는 데 사용됩니다. 정렬 과정에서 인덱스가 섞이기 때문에, 인덱스를 재설정하고 기존 인덱스는 제거합니다. 이 과정을 통해 최종적으로 기본 데이터 프레임이 완성됩니다.
 
+<img width="286" alt="그림1" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/d68935e2-1ddc-42cf-a690-7634e00544b7">
+
 ### 2) 데이터 전처리
 그러나 이 데이터프레임이 데이터 전처리 작업을 거치지 않은 데이터이기 때문에 데이터 정제작업을 해주어야 더 정확한 분석 결과를 얻을 수 있습니다.
  
-그림 2 11 문제점 1 개행문자+정수
+<img width="472" alt="그림2" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/03622a94-c2ba-42ef-8510-12f959006fac">
+
 첫번째 문제점은 개행문자+정수 이 값이 문장의 끝마다 추가되어 있다는 점이었습니다. 테이블로 읽어오면서 생겼던 문제점이라 추측하였습니다. 따라서 개행문자+정수 부분을 제거해 주어야 합니다.
 
  
-그림 2 12 delenter 함수
+<img width="393" alt="그림3" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/cf383de9-ebeb-4f46-a37f-280f7b92e082">
+
 개행문자와 정수는 delenter라는 함수를 직접 만들어서 제거했습니다. 데이터를 살펴보았을 때 개행이 3자리수를 넘어가는 데이터가 없었기 때문에 두 자리 수 정수부터 개행문자에 연결시켜서 연결 값이 데이터안에 있으면 제거하였습니다. 또한 파일 100.txt 에서 탭문자만 들어가 있는 문제가 있어서 이 또한 추가로 replace함수로 제거하였습니다.
 
- 
-그림 2 13 문제점 2 데이터 추출 및 제거
+<img width="435" alt="그림4" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/805ea5fa-eb76-4a04-9b4a-be9b52595c64">
 두번째 문제점은 필요 없는 문구와 필요한 문구를 구분해야 한다는 점이었습니다. 그림 2 14를 보면 “67 out of 144”라는 문구가 보입니다. 144명중 67명이 이 리뷰에 공감을 하였다는 뜻입니다. 따라서 데이터의 가치를 판단하는 것에 있어 중요한 요소가 될 수 있다고 판단하였습니다. 따라서 이 부분을 추출하여 데이터프레임의 column으로 만들 것입니다. 또한 데이터를 추출한 후 남은 “Was this review helpful?” 부터 텍스트의 끝까지는 필요 없는 요소입니다. 따라서 이 부분은 데이터에서 제거하도록 할 것입니다.
  
-그림 2 15 makeviews 함수
-
+<img width="498" alt="그림5" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/b2b60667-2554-4eb0-b9bd-066e433565c7">
 이 문제는 그림 2-15의 makeviews 함수를 만들어서 처리하였습니다. 조회수 column은 “out of”라는 글귀를 기준으로 +7의 위치부터 값이 정수인지 계산하여 만약 정수라면 조회수 변수에 저장하였습니다. 만일 정수가 아니면 결측치 np.nan을 채워 넣었습니다. 한가지 애로사항이 있었는데 그것은 텍스트 데이터 중에 ‘정수 out of 정수’이렇게 데이터가 끝나는 경우였습니다. 함수의 알고리즘이 out of 다음 값을 계속 검사해 나가는데 이런 경우에 다음 값을 검사할 수 없어서 문제가 발생하였습니다. 따라서 문장의 끝에 도달하면 검사를 종료하는 조건을 추가하였습니다.
-.  
-그림 2 16 makeempathy 함수
+
+<img width="452" alt="그림6" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/c6477d60-7086-4967-b2a4-f85a246b840f">
 공감수는 makeempathy 함수를 만들어서 처리하였습니다. 공감수 column은 “out of”라는 글귀를 기준으로 -2의 위치부터 값이 정수인지 계산하여 만약 정수라면 공감수 변수에 저장하였습니다. 만일 정수가 아니면 결측치 np.nan을 채워 넣었습니다.
 각 값의 검증은 원본데이터인 document_df의 길이와 추출한 views리스트와 empathy 리스트의 길이가 같음을 확인하였습니다. 그 후 이 리스트 2개를 데이터 프레임에 추가하였습니다.
 
 
 ## 3. 상위 25% 데이터 추출
+<img width="397" alt="그림7" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/8b07a070-7885-48de-903a-86890f721a99">
 views와 empathy의 결측치를 확인한 결과 데이터에서 12.5%가 결측치인 것으로 확인하였습니다. 결측치가 10%를 넘어가면 결측치를 채워 넣는 것이 데이터 분석에 유리하게 작용합니다. 그러나 아직 어떤 것을 기준으로 결측치를 채워 넣어야 할지 정하지 않았습니다.
 
- 
-그림 3 2 VADER 감성분석
+<img width="452" alt="그림8" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/83c6f4b7-5d45-48fd-ba42-83893dac6613">
 이 부분에서 비지도 학습 기반의 감성분석인 VADER를 이용하였습니다. VADER는 주로 소셜 미디어의 텍스트에 대한 감성 분석을 제공하기 위한 패키지로 뛰어난 감성 분석 결과를 제공하며 비교적 빠른 수행 시간을 보장해 대용량 텍스트 데이터에 잘 사용됩니다. 이 VADER를 통해 Sentiment라는 감정 칼럼을 만들어서 긍정과 부정여부를 저장하였습니다.
 ### 1) EV Column생성
-
- 
-그림 3 3 EV column 생성
-
+<img width="452" alt="그림9" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/4a2655c2-e168-43c4-8e11-5638cfadc7cd">
 우선 ‘공감수 나누기 조회수 곱하기 100’의 column을 EV라는 이름으로 생성하였습니다. 
 
- 
-그림 3 4 상위 25% 데이터 추출
+<img width="441" alt="그림10" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/d23ccf22-cbce-4760-9c9b-0ecfb13883b8">
 EV값을 기준으로 quantile함수를 사용해서 상위 25%, 하위 25%의 데이터들을 추출하였습니다.
 
-
-
 ### 2) 결측치 EDA
+
+![그림11](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/3b263d1d-63c6-4838-822e-332f43236302)
 EV기준 상위 25% 데이터의 전체 감성분포를 분석하였습니다. 그 결과 그림 3-5처럼 전체 데이터에서는 긍정의 수가 2배갸량 많았습니다.
- 
-그림 3 6 EV 기준 상위 25% 감성분포
+![그림12](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/c9084384-dc5d-4585-80ee-19d87616cd9d)
+</br>
+</br>
 
-
-
-
- 
-3 7 EV 기준 하위 25% 감성분포
+![그림13](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/19e123ac-8196-4dea-9d59-a81abdf65a5a)
 상위 25%의 데이터와 하위 25%데이터의 감성 비율을 분석하였습니다. 그 결과 그림 3-6처럼 상위 25%에서는 부정이 더 많았습니다. 반면 그림 3-7을 보면 하위 25%에서는 긍정이 압도적으로 많았습니다.
-
 전체 데이터의 긍정 부정의 비율을 살펴보았을 때 긍정의 수가 2배가량 많은 것을 고려하면, 상위 25%에서 부정이 더 많았다는 것은 큰 의미로 작용할 수 있다고 생각했습니다.
-
- 
-3 8 긍 부정 별 EV 평균값
-
-
- 
-3 9 긍 부정 별 EV 중앙값
+</br>
+</br>
+![그림14](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/0bc1f1bf-7d9b-4f4e-89a6-fcf74e77ac73)
+![그림15](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/d5bf10b4-e8c9-4c49-af8b-8197f696fdf9)
 추가로 전체데이터에서 긍정 부정 별 EV의 평균과 중앙값을 비교해보았습니다. 그 결과 그림 3-8과그림 3-9처럼 EV의 평균, 중앙값 모두 부정이 높았습니다. 앞의 내용까지 고려하면 EV값은 부정이 대체적으로 높을 것이라고 추측할 수 있습니다.
 
 그러나 아직 수학적인 수치로 증명이 된 것이 아니기 때문에 수학적인 근거를 찾아보려고 하였습니다.
  
-3 10 EV와 긍 부정 간 상관관계
-그래서 상관관계를 보기로 결심했습니다. 그러나 EV와 긍정, 부정지수는 상관관계가 없었습니다. 
+![그림16](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/192ea1ad-434d-40cc-be27-eac2a10615e1)
+그래서 상관관계를 보기로 하였습니다. 그러나 EV와 긍정, 부정지수는 상관관계가 없었습니다. 
 
- 
-3 11 EV와 긍 부정 간의 선형관계
+<img width="351" alt="그림17" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/e673dad4-1ef2-46e6-aee1-516ba11c3ba9">
 선형관계 또한 살펴보았지만 Linear regression을 비롯하여 릿지, 라소 모두 R스퀘어 지수가 마이너스 혹은 0으로 평균값으로 예측하는 것보다 성능이 좋지 않은 즉 전혀 선형관계가 없다는 것을 확인하였습니다. 이로써 결측치를 수학적인 함수로 예측을 할 수 없습니다.
 
 따라서 처음 분석의 결과를 고려하여 EV 결측치의 감성 column이 긍정이면 긍정의 중앙값으로 EV 결측치의 감성column이 부정이면 부정의 중앙값으로 값을 채워 넣는 것으로 정하였습니다.
 
 ### 3) 결측치 처리 및 상위 25% 데이터 추출
+<img width="499" alt="그림18" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/bdacef03-ec35-475e-b822-029b6ee1c172">
 조회수와 공감 수가 모두 0인 경우에 나눗셈 연산을 한 경우 결측치가 EV에 들어갑니다. 따라서 이부분을 0으로 초기화합니다.
 
-
- 
-3 13 결측치 처리
+<img width="513" alt="그림19" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/a210d54c-37ae-48a5-89a7-09a1fc3cc955">
 처음 분석의 결과를 고려하여 EV 결측치의 감성 column이 긍정이면 긍정의 중앙값으로 EV 결측치의 감성column이 부정이면 부정의 중앙값으로 값을 채워 넣었습니다.
 
- 
-3 14 상위 25% 데이터 추출
-
+<img width="299" alt="그림20" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/7e71d9e1-a8e4-4625-a493-432ad9e39f43">
 그 후 그림 3-14처럼 EV값을 기준으로 상위 25%의 데이터(top)를 추출하였습니다
 
 ## 4. K-Means 적용
 ### 1) TFIDF
-그림 4 1 TFIDF 벡터화
+<img width="358" alt="그림21" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/97eb942e-b7e4-4b83-b6db-60f5bcf50756">
 Kmeans 알고리즘을 적용하기 이전에 우리는 기계가 데이터를 알아들을 수 있는 형식으로 바꾸어 주어야합니다. 여기서 TFIDF라는 개념이 나오는데 이 TFIDF는 특정 단어가 문서 내에 등장(가중치)하는 빈도와 그 단어가 문서 전체 집합에서 등장(패널티)하는 빈도를 고려하여 벡터화 하는 방법입니다.
 
- 
-그림 4 2 TFIDF 파라미터
+<img width="491" alt="그림22" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/4b6f04dc-3bb9-4a0b-a23b-25497e01005a">
 사이킷런의 TFIDF에는 여러 파라미터를 통해 벡터화를 조절할 수 있습니다. ngram으로 문맥적요소를 반영하였으며 stop_words리스트에 수동으로 더 불용어를 추가해서 불용어를 추가적으로 제거하였습니다. 또한 max_df, min_df 수치를 주어 의미 없는 단어가 나타나는 수를 조절하여 피처에 반영하였습니다.
 
 ### 2) Lemmatization
+<img width="452" alt="그림23" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/893b320a-1ba7-4a43-94c0-e53db3774305">
 그 후에는 어근추출을 진행하였는데 LemNormalize함수를 통해 소문자로 변환 후 특수기호를 제거하였습니다. 그 후 토큰화를 진행하였고 LemTokens함수에 넘겨서 어근을 추출하고 리스트에 넣어서 반환하였습니다.
 
 ### 3) 최적의 군집수
 이렇게 해서 EV값 기준 상위 25% 텍스트의 단어들이 벡터화 된 정형데이터가 만들어졌습니다. 그러나 여기서 한가지 더 생각해야할 부분이 있습니다. 바로 KMeans의 군집수는 인간이 설정해야 한다는 부분입니다.
+
 #### 가. Elbow Method
-그림 4 4 Elbow Method
+<img width="302" alt="그림24" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/97d5e5be-1b96-443c-8d52-3f7948653cd0">
 ‘elbow method’를 통해 최적의 군집수를 찾을 수 있습니다. 우측하단 그림을 보면 y값이 계속 줄어들다가 어느 지점부터 그 정도가 작아지는 부분을 볼 수 있습니다. 마치 팔처럼 굽어지는 이부분을 찾는 것을 elbow method라고 합니다.
 
-그림 4 5 Elbow Method 소스
+<img width="407" alt="그림25" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/599d421c-e947-4282-ac0c-a89675abacf3">
 이 값은 inertia라는 군집에 속한 샘플들의 거리 수치를 통해 계산할 수 있습니다. 같은 클러스터 안에 요소들의 거리가 가깝다는 것은 상당히 군집화를 잘했다는 것이기 때문에 좋은 수치입니다. 따라서 그림 4-5의 반복문을 통해 이 값을 살펴보았습니다. 그러나 그림 4-6을 보시면 elbowpoint라고 할만한 지점을 찾지 못하였습니다.
 
+![그림26](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/b46f85d4-ab3e-4d80-8610-97c21369ca14)
+
 #### 나. Silhouette Analysis
-그림 4 7 Silhouette
+<img width="212" alt="그림27" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/b6aa39df-4fc8-4457-b678-b657c7709c8e">
 그래서 선택한 방법이 실루엣 분석입니다. 실루엣 분석은 각 군집 간의 거리가 얼마나 효율적으로 분리돼 있는지를 나타냅니다. 효율적으로 잘 분리됐다는 것은 다른 군집과의 거리는 떨어져 있고 동일 군집끼리의 데이터는 서로 가깝게 잘 뭉쳐 있다는 의미입니다. 실루엣 분석은 실루엣 계수를 기반으로 합니다. 실루엣 계수는 개별 데이터가 가지는 군집화의 지표입니다. 이는 해당 데이터가 같은 군집내의 데이터들이 얼마나 가까운지 다른 군집에 있는 데이터와는 얼마나 멀리 분포되어 있는지를 총괄적으로 고려한 수치로 높을수록 좋은 값입니다.
 그림 4-7을 보시면 특정 데이터 포인트의 실루엣 계수 값은 해당 데이터 포인트와 같은 군집 내에 있는 데이터 포인트와의 거리를 평균한 값 a(i), 해당 데이터 포인트가 속하지 않은 군집 중 가장 가까운 군집화의 평균 거리 b(i)를 기반으로 계산됩니다. 두 군집 간의 거리가 얼마나 떨어져 있는가의 값은 b(i) – a(i)이며 이 값을 정규화하기 위해 MAX( a(i), b(i) )값으로 나눕니다.  
  
-그림 4 8 Silhouette Analysis 소스
+<img width="374" alt="그림28" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/944fa547-2ea9-45db-b521-744e7415693c">
 따라서 이것 역시 그림 4-8처럼 반복문을 통해 최적값을 찾으려 했습니다. 결국 그림 4-9를 보면 K=8일 때 실루엣계수가 가장 높게 나타났기에 군집수를 8개로 정하였습니다.
-
-
- 
-그림 4 9 Silhouette Analysis 결과
+<img width="512" alt="그림29" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/d5a278f6-86cb-4a82-bf98-c90ddf2856fc">
 
 ### 4) 군집화 수행 및 결과
-그림 4 10 cluster_centers
-
+<img width="451" alt="그림30" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/230655d8-8e59-4cb2-88f1-4c18b03e5d70">
 그렇게 군집화를 수행하였고 그 군집화의 결과를 column으로 집어넣었습니다. 또한 군집 내 단어들의 value를 통해 한 군집을 대표하는 단어 top 5를 출력할 수 있게 설정하였습니다. 그림 4-10의 코드를 보면 cluster_centers_라는 속성이 보입니다. KMeans객체는 각 군집을 구성하는 단어 피처가 군집의 중심을 기준으로 얼마나 가깝게 위치해 있는지 이 속성을 통해 제공합니다. 이 속성을 이용하여 단어마다 value값을 만들어 주었고 이 값은 값이 클수록 즉 1에 가까울수록 군집의 중심과 가까운 값을 의미합니다. 다시 말해 그 군집을 대표할 수 있는 단어로 해석이 가능합니다.
 
-그러면 각각의 클러스터에는 그림 4-11과 같이 단어들이 묶여 있습니다. 
+<img width="452" alt="그림31" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/98342209-f44e-4456-91ea-507870332dd2">
+
+그러면 각각의 클러스터에는 위와 같이 단어들이 묶여 있습니다. 
 
 
-	Top1	Top2	Top3	Top4	Top5
-Cluster0	royal	battle royal	battle	better	watched
-Cluster1	show	great	good	watched	acting
-Cluster2	episode	id	hype	season	someone
-Cluster3	old man	guy	Bad	character	old
-Cluster4	end	episode	first	done	well
-Cluster5	life	style	play	acting	squid
-Cluster6	people	character	show	make	way
-Cluster7	last	last episode	episode	worth	three
-표 4 1 군집별 top 5 words
-표 4-1은 그림 4-11을 정리한 것입니다. 표4-1을 살펴보겠습니다. 클러스터 0에는 battle royal에 관련한 단어들이 묶여 있습니다. 비슷한 의미의 단어들이 묶인 것으로 보아 클러스터링이 잘되었다고 추측할 수 있습니다. 클러스터 1에는 쇼, 최고, 연기라는 단어가 묶여 있는 것으로 보아 ‘연기력이 훌륭했다’고 추측해볼 수 있습니다. 클러스터2에는 에피소드id, 시즌 단어들이 묶여 있습니다. 클러스터3에는 old man 캐릭터와 관련된 단어들이 묶여 있습니다. 클러스터4에는 Episode와 순서에 관련한 단어가 묶여 있습니다. 클러스터 5에는 삶, 연기, 오징어 게임 등의 단어가 묶여 있습니다. 클러스터6에는 사람, 캐릭터, 쇼 등의 단어가 묶여 있습니다. 클러스터7에는 마지막 에피소드에 관한 단어들이 묶여 있습니다. 
+| Cluster  | Top1     | Top2          | Top3     | Top4     | Top5    |
+|----------|----------|---------------|----------|----------|---------|
+| Cluster0 | royal    | battle royal  | battle   | better   | watched |
+| Cluster1 | show     | great         | good     | watched  | acting  |
+| Cluster2 | episode  | id            | hype     | season   | someone |
+| Cluster3 | old man  | guy           | Bad      | character| old     |
+| Cluster4 | end      | episode       | first    | done     | well    |
+| Cluster5 | life     | style         | play     | acting   | squid   |
+| Cluster6 | people   | character     | show     | make     | way     |
+| Cluster7 | last     | last episode  | episode  | worth    | three   |
+
+위의 표를 살펴보겠습니다. 클러스터 0에는 battle royal에 관련한 단어들이 묶여 있습니다. 비슷한 의미의 단어들이 묶인 것으로 보아 클러스터링이 잘되었다고 추측할 수 있습니다. 클러스터 1에는 쇼, 최고, 연기라는 단어가 묶여 있는 것으로 보아 ‘연기력이 훌륭했다’고 추측해볼 수 있습니다. 클러스터2에는 에피소드id, 시즌 단어들이 묶여 있습니다. 클러스터3에는 old man 캐릭터와 관련된 단어들이 묶여 있습니다. 클러스터4에는 Episode와 순서에 관련한 단어가 묶여 있습니다. 클러스터 5에는 삶, 연기, 오징어 게임 등의 단어가 묶여 있습니다. 클러스터6에는 사람, 캐릭터, 쇼 등의 단어가 묶여 있습니다. 클러스터7에는 마지막 에피소드에 관한 단어들이 묶여 있습니다. 
 그러나 이렇게만 봐서는 인간의 해석이 강하게 들어갈 수밖에 없는 문제점이 발생합니다. 프로젝트의 목표는 인간이 군집화 된 단어들을 해석하는 것이 아니기때문에 프로젝트의 마지막 단계인 다음장으로 넘어가겠습니다.
 
 ## 5. LSTM 적용
 ### 1) 학습데이터 구성
-그림 5 1 문장 리스트 구성
+
+<img width="452" alt="그림32" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/97a0433e-cec5-4be7-88b2-51ebce9cdf03">
 각각의 군집의 텍스트를 LSTM에 학습시키기 위해서는 토큰화된 단어를 수치화하고 이를 연속적인 리스트로 만들어주어야 합니다. 그 이유는 “모델이 단어를 예측하기 위해 이전에 등장한 단어를 모두 활용하기 위함”입니다. 그림 5-1은 데이터를 연속적인 리스트로 만들어주는 코드입니다. 이렇게 하면 데이터의 단어를 토큰화하고 데이터의 리스트들은 연속적인 값을 가지게 됩니다. 그러나 이런 식의 값은 문장의 길이가 모두 다르기 때문에 기계가 읽을 수 없습니다.
 
-
- 
-그림 5 2 패딩 작업
+<img width="452" alt="그림33" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/5a2935cb-0742-497e-9d81-9df10cfaff28">
 따라서 비어 있는 요소들에 패딩이라는 작업을 거쳐야 하는데 그림5-2의 0으로 채워주는 작업입니다. 또한 데이터가 앞장에 비해 오른쪽으로 밀려 있는 경향을 가지고 있습니다. 이것은 모델의 마지막 값을 타겟으로 계속해서 예측을 해 나가기 때문에 필요한 데이터의 구성입니다.
 
 ### 2) LSTM 모델 구성
-그림 5 3 LSTM 모델 구성
-LSTM모델은 그림 5-3처럼 구성하였습니다. embedding layer는 단어를 의미론적 기하 공간에 매핑할 수 있도록 벡터화 시키는 layer입니다. 그 다음은 128개의 유닛의 lstm layer를 추가하였고 dense layer는 입력과 출력을 연결해주는 layer입니다.
+<img width="452" alt="그림34" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/7a189e0c-c1f0-4cae-b04f-31d1032d2fdf">
+LSTM모델은 위의 그림처럼 구성하였습니다. embedding layer는 단어를 의미론적 기하 공간에 매핑할 수 있도록 벡터화 시키는 layer입니다. 그 다음은 128개의 유닛의 lstm layer를 추가하였고 dense layer는 입력과 출력을 연결해주는 layer입니다.
 
 ### 3) LSTM 모델로 TEXT 생성 및 해석
+| Cluster  | 단어        | LSTM TEXT 생성 |
+|----------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Cluster0 | Royal watched | Royal watched the whole lot and its just plain silly the cast bring overacting to a new level all the characters are spectacularly annoying i wanted them all to die by episode |
+| Cluster1 | Show          | Show of the best shows ive watched everyone of the actors was so so good and the second like which it really slow i often have the feeling that many scenes are there just to make the show longer adding very little to the plot |
+| Cluster2 | Episode       | Episode 1 was amazing but things went downhill a little bit each episode episode 4 i was totally over it i did watch all 9 episodes because id already invested so much time into it |
+| Cluster3 | Old man       | Old man the korean version of hunger game with some cheap metaphors to criticize capitalism democracy ethics etc terrible acting cliche dialogues and predictable scenes that drag for minutes and minutes |
+| Cluster4 | First         | First started squid game i didnt expect much just something to pass time at work after the first two episodes i was hooked the show is thrilling and makes your heart beat increase i highly recommend watching if you are looking to have some entertainment for a couple hours hours |
+| Cluster5 | Life          | Life overrated it keeps the same drum about what youd do in a game if it was your life versus anothers life its got a certain style but the acting was amateurish and melodramatic sorta like anime |
+| Cluster6 | Character     | Character mean am an ardent follower of the korean movies even though most of the movies are laden with violence gore and bloodbath ... i risked my time on the rave reviews the show is getting and boy it has paid back i cannot recall any single show more edge of the seat than this yes there may be better shows in terms of intrinsic production valueson the rave reviews the show is getting and boy it has paid back i cannot recall any single show more edge of the seat than this yes there may be better shows in terms of intrinsic production values |
+| Cluster7 | Last Episode  | Last Episode very very very minor i really didnt like the last three episodes and the wrapup was dissatisfying gganbu was one of the strongest episodes in an emotional perspective |
+
 최종 단계입니다. 군집 단어의 value값을 우선순위를 두고 학습한 LSTM모델에 넣어 문장을 뽑았습니다. 만약 첫번째 단어를 입력으로 넣었을 때 문장이 이상하다면 다음 우선순위의 단어를 넣었습니다
 우선 군집0의 Royal watched를 넣었을 경우입니다. “모든 캐릭터는 엄청나게 짜증이 납니다. 에피소드별로 모두 죽기를 원했습니다.”라는 문장이 생성되었습니다. 여기서 캐릭터들에 대한 부정적인 의견을 볼 수 있는데 이것이 작품에 너무 몰입을 해서 부정적인 것인지 알 수가 없었습니다.
 두번째는 군집1의 ‘show’를 넣었을 경우입니다. “내가 본 최고의 쇼의 쇼는 모든 배우들이 너무 좋았고 두 번째는 정말 느려서 쇼를 더 길게 만들기 위해 많은 장면이 거기에 있다는 느낌이 듭니다.”라는 문장이 생성되었습니다. 이를 통해 배우들에 대한 긍정적인 의견을 엿볼 수 있고 쇼를 의도적으로 길게 만든 것이 눈에 보였다는 것을 해석할 수 있습니다.
