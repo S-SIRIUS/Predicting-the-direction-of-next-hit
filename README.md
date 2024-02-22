@@ -198,9 +198,7 @@ Kmeans 알고리즘을 적용하기 이전에 우리는 기계가 데이터를 �
 
 이 값은 inertia라는 군집에 속한 샘플들의 거리 수치를 통해 계산할 수 있습니다. 같은 클러스터 안에 요소들의 거리가 가깝다는 것은 상당히 군집화를 잘했다는 것이기 때문에 좋은 수치입니다. 따라서 그림 4-5의 반복문을 통해 이 값을 살펴보았습니다. 그러나 그림 4-6을 보시면 elbowpoint라고 할만한 지점을 찾지 못하였습니다.
 
-<div align="center">
 ![그림26](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/b46f85d4-ab3e-4d80-8610-97c21369ca14)
-</div>
 
 #### 나. Silhouette Analysis
 
