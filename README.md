@@ -90,43 +90,43 @@ EV값을 기준으로 quantile함수를 사용해서 상위 25%, 하위 25%의 �
 
 ### 2) 결측치 EDA
 
-<div align="center">
+
 ![그림11](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/3b263d1d-63c6-4838-822e-332f43236302)
-</div>
+
 
 EV기준 상위 25% 데이터의 전체 감성분포를 분석하였습니다. 그 결과 그림 3-5처럼 전체 데이터에서는 긍정의 수가 2배갸량 많았습니다.
 
-<div align="center">
+
 ![그림12](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/c9084384-dc5d-4585-80ee-19d87616cd9d)
-</div>
+
 
 </br>
 </br>
 
-<div align="center">
+
 ![그림13](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/19e123ac-8196-4dea-9d59-a81abdf65a5a)
-</div>
+
 
 상위 25%의 데이터와 하위 25%데이터의 감성 비율을 분석하였습니다. 그 결과 그림 3-6처럼 상위 25%에서는 부정이 더 많았습니다. 반면 그림 3-7을 보면 하위 25%에서는 긍정이 압도적으로 많았습니다.
 전체 데이터의 긍정 부정의 비율을 살펴보았을 때 긍정의 수가 2배가량 많은 것을 고려하면, 상위 25%에서 부정이 더 많았다는 것은 큰 의미로 작용할 수 있다고 생각했습니다.
 </br>
 </br>
 
-<div align="center">
-![그림14](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/0bc1f1bf-7d9b-4f4e-89a6-fcf74e77ac73)
-</div>
 
-<div align="center">
+![그림14](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/0bc1f1bf-7d9b-4f4e-89a6-fcf74e77ac73)
+
+
+
 ![그림15](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/d5bf10b4-e8c9-4c49-af8b-8197f696fdf9)
-</div>
+
 
 추가로 전체데이터에서 긍정 부정 별 EV의 평균과 중앙값을 비교해보았습니다. 그 결과 그림 3-8과그림 3-9처럼 EV의 평균, 중앙값 모두 부정이 높았습니다. 앞의 내용까지 고려하면 EV값은 부정이 대체적으로 높을 것이라고 추측할 수 있습니다.
 
 그러나 아직 수학적인 수치로 증명이 된 것이 아니기 때문에 수학적인 근거를 찾아보려고 하였습니다.
 
-<div align="center">
+
 ![그림16](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/192ea1ad-434d-40cc-be27-eac2a10615e1)
-</div>
+
 
 그래서 상관관계를 보기로 하였습니다. 그러나 EV와 긍정, 부정지수는 상관관계가 없었습니다. 
 
