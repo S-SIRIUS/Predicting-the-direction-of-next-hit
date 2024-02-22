@@ -23,7 +23,7 @@ Kmeans 알고리즘은 “군집 중심점이라는 특정한 임의의 지점�
 ### 1) 데이터 프레임화
 데이터 분석을 위해 텍스트 파일들을 데이터 프레임 형태로 변환하는 과정을 설명합니다. 먼저, 파일들의 경로를 지정하고, 모든 파일명을 all_files에 저장하여 경로를 포함시킵니다. 이 파일들은 read_table을 사용해 읽히고, 문자열 형태로 변환된 후 review_text 리스트에 저장됩니다. 파일명은 처리하여 filename_list에 저장되며, 이는 파일명을 기준으로 정렬하는 데 사용됩니다. 정렬 과정에서 인덱스가 섞이기 때문에, 인덱스를 재설정하고 기존 인덱스는 제거합니다. 이 과정을 통해 최종적으로 기본 데이터 프레임이 완성됩니다.
 
-<img width="286" alt="그림1" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/d68935e2-1ddc-42cf-a690-7634e00544b7">
+<img width="286" align="center" alt="그림1" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/d68935e2-1ddc-42cf-a690-7634e00544b7">
 
 ### 2) 데이터 전처리
 그러나 이 데이터프레임이 데이터 전처리 작업을 거치지 않은 데이터이기 때문에 데이터 정제작업을 해주어야 더 정확한 분석 결과를 얻을 수 있습니다.
