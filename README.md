@@ -29,79 +29,110 @@ Kmeans 알고리즘은 “군집 중심점이라는 특정한 임의의 지점�
 
 ### 2) 데이터 전처리
 그러나 이 데이터프레임이 데이터 전처리 작업을 거치지 않은 데이터이기 때문에 데이터 정제작업을 해주어야 더 정확한 분석 결과를 얻을 수 있습니다.
- 
+<div align="center"> 
 <img width="472" alt="그림2" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/03622a94-c2ba-42ef-8510-12f959006fac">
+</div>
 
 첫번째 문제점은 개행문자+정수 이 값이 문장의 끝마다 추가되어 있다는 점이었습니다. 테이블로 읽어오면서 생겼던 문제점이라 추측하였습니다. 따라서 개행문자+정수 부분을 제거해 주어야 합니다.
 
- 
+<div align="center">
 <img width="393" alt="그림3" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/cf383de9-ebeb-4f46-a37f-280f7b92e082">
+</div>
 
 개행문자와 정수는 delenter라는 함수를 직접 만들어서 제거했습니다. 데이터를 살펴보았을 때 개행이 3자리수를 넘어가는 데이터가 없었기 때문에 두 자리 수 정수부터 개행문자에 연결시켜서 연결 값이 데이터안에 있으면 제거하였습니다. 또한 파일 100.txt 에서 탭문자만 들어가 있는 문제가 있어서 이 또한 추가로 replace함수로 제거하였습니다.
 
+<div align="center">
 <img width="435" alt="그림4" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/805ea5fa-eb76-4a04-9b4a-be9b52595c64">
+</div>
 
 두번째 문제점은 필요 없는 문구와 필요한 문구를 구분해야 한다는 점이었습니다. 그림 2 14를 보면 “67 out of 144”라는 문구가 보입니다. 144명중 67명이 이 리뷰에 공감을 하였다는 뜻입니다. 따라서 데이터의 가치를 판단하는 것에 있어 중요한 요소가 될 수 있다고 판단하였습니다. 따라서 이 부분을 추출하여 데이터프레임의 column으로 만들 것입니다. 또한 데이터를 추출한 후 남은 “Was this review helpful?” 부터 텍스트의 끝까지는 필요 없는 요소입니다. 따라서 이 부분은 데이터에서 제거하도록 할 것입니다.
- 
+
+<div align="center"> 
 <img width="498" alt="그림5" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/b2b60667-2554-4eb0-b9bd-066e433565c7">
+</div>
 
 이 문제는 그림 2-15의 makeviews 함수를 만들어서 처리하였습니다. 조회수 column은 “out of”라는 글귀를 기준으로 +7의 위치부터 값이 정수인지 계산하여 만약 정수라면 조회수 변수에 저장하였습니다. 만일 정수가 아니면 결측치 np.nan을 채워 넣었습니다. 한가지 애로사항이 있었는데 그것은 텍스트 데이터 중에 ‘정수 out of 정수’이렇게 데이터가 끝나는 경우였습니다. 함수의 알고리즘이 out of 다음 값을 계속 검사해 나가는데 이런 경우에 다음 값을 검사할 수 없어서 문제가 발생하였습니다. 따라서 문장의 끝에 도달하면 검사를 종료하는 조건을 추가하였습니다.
 
+<div align="center">
 <img width="452" alt="그림6" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/c6477d60-7086-4967-b2a4-f85a246b840f">
+</div>
 
 공감수는 makeempathy 함수를 만들어서 처리하였습니다. 공감수 column은 “out of”라는 글귀를 기준으로 -2의 위치부터 값이 정수인지 계산하여 만약 정수라면 공감수 변수에 저장하였습니다. 만일 정수가 아니면 결측치 np.nan을 채워 넣었습니다.
 각 값의 검증은 원본데이터인 document_df의 길이와 추출한 views리스트와 empathy 리스트의 길이가 같음을 확인하였습니다. 그 후 이 리스트 2개를 데이터 프레임에 추가하였습니다.
 
 
 ## 3. 상위 25% 데이터 추출
+
+<div align="center">
 <img width="397" alt="그림7" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/8b07a070-7885-48de-903a-86890f721a99">
+</div>
 
 views와 empathy의 결측치를 확인한 결과 데이터에서 12.5%가 결측치인 것으로 확인하였습니다. 결측치가 10%를 넘어가면 결측치를 채워 넣는 것이 데이터 분석에 유리하게 작용합니다. 그러나 아직 어떤 것을 기준으로 결측치를 채워 넣어야 할지 정하지 않았습니다.
 
+<div align="center">
 <img width="452" alt="그림8" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/83c6f4b7-5d45-48fd-ba42-83893dac6613">
+</div>
 
 이 부분에서 비지도 학습 기반의 감성분석인 VADER를 이용하였습니다. VADER는 주로 소셜 미디어의 텍스트에 대한 감성 분석을 제공하기 위한 패키지로 뛰어난 감성 분석 결과를 제공하며 비교적 빠른 수행 시간을 보장해 대용량 텍스트 데이터에 잘 사용됩니다. 이 VADER를 통해 Sentiment라는 감정 칼럼을 만들어서 긍정과 부정여부를 저장하였습니다.
 ### 1) EV Column생성
 
+<div align="center">
 <img width="452" alt="그림9" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/4a2655c2-e168-43c4-8e11-5638cfadc7cd">
+</div>
 
 우선 ‘공감수 나누기 조회수 곱하기 100’의 column을 EV라는 이름으로 생성하였습니다. 
 
+<div align="center">
 <img width="441" alt="그림10" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/d23ccf22-cbce-4760-9c9b-0ecfb13883b8">
+</div>
 
 EV값을 기준으로 quantile함수를 사용해서 상위 25%, 하위 25%의 데이터들을 추출하였습니다.
 
 ### 2) 결측치 EDA
 
+<div align="center">
 ![그림11](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/3b263d1d-63c6-4838-822e-332f43236302)
+</div>
 
 EV기준 상위 25% 데이터의 전체 감성분포를 분석하였습니다. 그 결과 그림 3-5처럼 전체 데이터에서는 긍정의 수가 2배갸량 많았습니다.
 
+<div align="center">
 ![그림12](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/c9084384-dc5d-4585-80ee-19d87616cd9d)
+</div>
 
 </br>
 </br>
 
+<div align="center">
 ![그림13](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/19e123ac-8196-4dea-9d59-a81abdf65a5a)
+</div>
 
 상위 25%의 데이터와 하위 25%데이터의 감성 비율을 분석하였습니다. 그 결과 그림 3-6처럼 상위 25%에서는 부정이 더 많았습니다. 반면 그림 3-7을 보면 하위 25%에서는 긍정이 압도적으로 많았습니다.
 전체 데이터의 긍정 부정의 비율을 살펴보았을 때 긍정의 수가 2배가량 많은 것을 고려하면, 상위 25%에서 부정이 더 많았다는 것은 큰 의미로 작용할 수 있다고 생각했습니다.
 </br>
 </br>
 
+<div align="center">
 ![그림14](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/0bc1f1bf-7d9b-4f4e-89a6-fcf74e77ac73)
+</div>
 
+<div align="center">
 ![그림15](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/d5bf10b4-e8c9-4c49-af8b-8197f696fdf9)
+</div>
 
 추가로 전체데이터에서 긍정 부정 별 EV의 평균과 중앙값을 비교해보았습니다. 그 결과 그림 3-8과그림 3-9처럼 EV의 평균, 중앙값 모두 부정이 높았습니다. 앞의 내용까지 고려하면 EV값은 부정이 대체적으로 높을 것이라고 추측할 수 있습니다.
 
 그러나 아직 수학적인 수치로 증명이 된 것이 아니기 때문에 수학적인 근거를 찾아보려고 하였습니다.
- 
+
+<div align="center">
 ![그림16](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/192ea1ad-434d-40cc-be27-eac2a10615e1)
+</div>
 
 그래서 상관관계를 보기로 하였습니다. 그러나 EV와 긍정, 부정지수는 상관관계가 없었습니다. 
 
+<div align="center">
 <img width="351" alt="그림17" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/e673dad4-1ef2-46e6-aee1-516ba11c3ba9">
+</div>
 
 선형관계 또한 살펴보았지만 Linear regression을 비롯하여 릿지, 라소 모두 R스퀘어 지수가 마이너스 혹은 0으로 평균값으로 예측하는 것보다 성능이 좋지 않은 즉 전혀 선형관계가 없다는 것을 확인하였습니다. 이로써 결측치를 수학적인 함수로 예측을 할 수 없습니다.
 
@@ -109,32 +140,44 @@ EV기준 상위 25% 데이터의 전체 감성분포를 분석하였습니다. �
 
 ### 3) 결측치 처리 및 상위 25% 데이터 추출
 
+<div align="center">
 <img width="499" alt="그림18" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/bdacef03-ec35-475e-b822-029b6ee1c172">
+</div>
 
 조회수와 공감 수가 모두 0인 경우에 나눗셈 연산을 한 경우 결측치가 EV에 들어갑니다. 따라서 이부분을 0으로 초기화합니다.
 
+<div align="center">
 <img width="513" alt="그림19" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/a210d54c-37ae-48a5-89a7-09a1fc3cc955">
+</div>
 
 처음 분석의 결과를 고려하여 EV 결측치의 감성 column이 긍정이면 긍정의 중앙값으로 EV 결측치의 감성column이 부정이면 부정의 중앙값으로 값을 채워 넣었습니다.
 
+<div align="center">
 <img width="299" alt="그림20" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/7e71d9e1-a8e4-4625-a493-432ad9e39f43">
+</div>
 
 그 후 그림 3-14처럼 EV값을 기준으로 상위 25%의 데이터(top)를 추출하였습니다
 
 ## 4. K-Means 적용
 ### 1) TFIDF
 
+<div align="center">
 <img width="358" alt="그림21" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/97eb942e-b7e4-4b83-b6db-60f5bcf50756">
+</div>
 
 Kmeans 알고리즘을 적용하기 이전에 우리는 기계가 데이터를 알아들을 수 있는 형식으로 바꾸어 주어야합니다. 여기서 TFIDF라는 개념이 나오는데 이 TFIDF는 특정 단어가 문서 내에 등장(가중치)하는 빈도와 그 단어가 문서 전체 집합에서 등장(패널티)하는 빈도를 고려하여 벡터화 하는 방법입니다.
 
+<div align="center">
 <img width="491" alt="그림22" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/4b6f04dc-3bb9-4a0b-a23b-25497e01005a">
+</div>
 
 사이킷런의 TFIDF에는 여러 파라미터를 통해 벡터화를 조절할 수 있습니다. ngram으로 문맥적요소를 반영하였으며 stop_words리스트에 수동으로 더 불용어를 추가해서 불용어를 추가적으로 제거하였습니다. 또한 max_df, min_df 수치를 주어 의미 없는 단어가 나타나는 수를 조절하여 피처에 반영하였습니다.
 
 ### 2) Lemmatization
 
+<div align="center">
 <img width="452" alt="그림23" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/893b320a-1ba7-4a43-94c0-e53db3774305">
+</div>
 
 그 후에는 어근추출을 진행하였는데 LemNormalize함수를 통해 소문자로 변환 후 특수기호를 제거하였습니다. 그 후 토큰화를 진행하였고 LemTokens함수에 넘겨서 어근을 추출하고 리스트에 넣어서 반환하였습니다.
 
@@ -143,36 +186,52 @@ Kmeans 알고리즘을 적용하기 이전에 우리는 기계가 데이터를 �
 
 #### 가. Elbow Method
 
+<div align="center">
 <img width="302" alt="그림24" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/97d5e5be-1b96-443c-8d52-3f7948653cd0">
+</div>
 
 ‘elbow method’를 통해 최적의 군집수를 찾을 수 있습니다. 우측하단 그림을 보면 y값이 계속 줄어들다가 어느 지점부터 그 정도가 작아지는 부분을 볼 수 있습니다. 마치 팔처럼 굽어지는 이부분을 찾는 것을 elbow method라고 합니다.
 
+<div align="center">
 <img width="407" alt="그림25" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/599d421c-e947-4282-ac0c-a89675abacf3">
+</div>
 
 이 값은 inertia라는 군집에 속한 샘플들의 거리 수치를 통해 계산할 수 있습니다. 같은 클러스터 안에 요소들의 거리가 가깝다는 것은 상당히 군집화를 잘했다는 것이기 때문에 좋은 수치입니다. 따라서 그림 4-5의 반복문을 통해 이 값을 살펴보았습니다. 그러나 그림 4-6을 보시면 elbowpoint라고 할만한 지점을 찾지 못하였습니다.
 
+<div align="center">
 ![그림26](https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/b46f85d4-ab3e-4d80-8610-97c21369ca14)
+</div>
 
 #### 나. Silhouette Analysis
 
+<div align="center">
 <img width="212" alt="그림27" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/b6aa39df-4fc8-4457-b678-b657c7709c8e">
+</div>
 
 그래서 선택한 방법이 실루엣 분석입니다. 실루엣 분석은 각 군집 간의 거리가 얼마나 효율적으로 분리돼 있는지를 나타냅니다. 효율적으로 잘 분리됐다는 것은 다른 군집과의 거리는 떨어져 있고 동일 군집끼리의 데이터는 서로 가깝게 잘 뭉쳐 있다는 의미입니다. 실루엣 분석은 실루엣 계수를 기반으로 합니다. 실루엣 계수는 개별 데이터가 가지는 군집화의 지표입니다. 이는 해당 데이터가 같은 군집내의 데이터들이 얼마나 가까운지 다른 군집에 있는 데이터와는 얼마나 멀리 분포되어 있는지를 총괄적으로 고려한 수치로 높을수록 좋은 값입니다.
 그림 4-7을 보시면 특정 데이터 포인트의 실루엣 계수 값은 해당 데이터 포인트와 같은 군집 내에 있는 데이터 포인트와의 거리를 평균한 값 a(i), 해당 데이터 포인트가 속하지 않은 군집 중 가장 가까운 군집화의 평균 거리 b(i)를 기반으로 계산됩니다. 두 군집 간의 거리가 얼마나 떨어져 있는가의 값은 b(i) – a(i)이며 이 값을 정규화하기 위해 MAX( a(i), b(i) )값으로 나눕니다.  
- 
+
+<div align="center">
 <img width="374" alt="그림28" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/944fa547-2ea9-45db-b521-744e7415693c">
+</div>
 
 따라서 이것 역시 그림 4-8처럼 반복문을 통해 최적값을 찾으려 했습니다. 결국 그림 4-9를 보면 K=8일 때 실루엣계수가 가장 높게 나타났기에 군집수를 8개로 정하였습니다.
 
+<div align="center">
 <img width="512" alt="그림29" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/d5a278f6-86cb-4a82-bf98-c90ddf2856fc">
+</div>
 
 ### 4) 군집화 수행 및 결과
 
+<div align="center">
 <img width="451" alt="그림30" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/230655d8-8e59-4cb2-88f1-4c18b03e5d70">
+</div>
 
 그렇게 군집화를 수행하였고 그 군집화의 결과를 column으로 집어넣었습니다. 또한 군집 내 단어들의 value를 통해 한 군집을 대표하는 단어 top 5를 출력할 수 있게 설정하였습니다. 그림 4-10의 코드를 보면 cluster_centers_라는 속성이 보입니다. KMeans객체는 각 군집을 구성하는 단어 피처가 군집의 중심을 기준으로 얼마나 가깝게 위치해 있는지 이 속성을 통해 제공합니다. 이 속성을 이용하여 단어마다 value값을 만들어 주었고 이 값은 값이 클수록 즉 1에 가까울수록 군집의 중심과 가까운 값을 의미합니다. 다시 말해 그 군집을 대표할 수 있는 단어로 해석이 가능합니다.
 
+<div align="center">
 <img width="452" alt="그림31" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/98342209-f44e-4456-91ea-507870332dd2">
+</div>
 
 그러면 각각의 클러스터에는 위와 같이 단어들이 묶여 있습니다. 
 
@@ -194,17 +253,23 @@ Kmeans 알고리즘을 적용하기 이전에 우리는 기계가 데이터를 �
 ## 5. LSTM 적용
 ### 1) 학습데이터 구성
 
+<div align="center">
 <img width="452" alt="그림32" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/97a0433e-cec5-4be7-88b2-51ebce9cdf03">
+</div>
 
 각각의 군집의 텍스트를 LSTM에 학습시키기 위해서는 토큰화된 단어를 수치화하고 이를 연속적인 리스트로 만들어주어야 합니다. 그 이유는 “모델이 단어를 예측하기 위해 이전에 등장한 단어를 모두 활용하기 위함”입니다. 그림 5-1은 데이터를 연속적인 리스트로 만들어주는 코드입니다. 이렇게 하면 데이터의 단어를 토큰화하고 데이터의 리스트들은 연속적인 값을 가지게 됩니다. 그러나 이런 식의 값은 문장의 길이가 모두 다르기 때문에 기계가 읽을 수 없습니다.
 
+<div align="center">
 <img width="452" alt="그림33" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/5a2935cb-0742-497e-9d81-9df10cfaff28">
+</div>
 
 따라서 비어 있는 요소들에 패딩이라는 작업을 거쳐야 하는데 그림5-2의 0으로 채워주는 작업입니다. 또한 데이터가 앞장에 비해 오른쪽으로 밀려 있는 경향을 가지고 있습니다. 이것은 모델의 마지막 값을 타겟으로 계속해서 예측을 해 나가기 때문에 필요한 데이터의 구성입니다.
 
 ### 2) LSTM 모델 구성
 
+<div align="center">
 <img width="452" alt="그림34" src="https://github.com/S-SIRIUS/Predicting-the-direction-of-next-hit/assets/109223193/7a189e0c-c1f0-4cae-b04f-31d1032d2fdf">
+</div>
 
 LSTM모델은 위의 그림처럼 구성하였습니다. embedding layer는 단어를 의미론적 기하 공간에 매핑할 수 있도록 벡터화 시키는 layer입니다. 그 다음은 128개의 유닛의 lstm layer를 추가하였고 dense layer는 입력과 출력을 연결해주는 layer입니다.
 
